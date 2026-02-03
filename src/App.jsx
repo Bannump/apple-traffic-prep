@@ -5,10 +5,11 @@ import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DayView } from './components/DayView';
 import { StudyPage } from './components/StudyPage';
+import { TechnicalGuidePage } from './components/TechnicalGuidePage';
 import { NotesModal } from './components/NotesModal';
 
 export default function App() {
-  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study'
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide'
   const [currentDay, setCurrentDay] = useState(1);
   const [notesModal, setNotesModal] = useState({
     open: false,
@@ -69,7 +70,15 @@ export default function App() {
             onClick={() => setView('study')}
             aria-pressed={view === 'study'}
           >
-            UDP Project Deep Dive
+            UDP Deep Dive
+          </button>
+          <button
+            type="button"
+            className={`view-toggle${view === 'technical-guide' ? ' active' : ''}`}
+            onClick={() => setView('technical-guide')}
+            aria-pressed={view === 'technical-guide'}
+          >
+            Technical Guide
           </button>
         </header>
 
@@ -86,6 +95,7 @@ export default function App() {
           />
         )}
         {view === 'study' && <StudyPage />}
+        {view === 'technical-guide' && <TechnicalGuidePage />}
       </main>
 
       <NotesModal
