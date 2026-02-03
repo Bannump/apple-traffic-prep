@@ -230,6 +230,114 @@ body {
   padding: 1.5rem;
 }
 
+/* ----- Study page (UDP Deep Dive doc) ----- */
+.view-study {
+  padding: 1.5rem;
+}
+
+.study-page {
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.study-content {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.markdown-body h1 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.markdown-body h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.markdown-body h3 {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.markdown-body p {
+  margin: 0 0 0.75rem;
+}
+
+.markdown-body ul, .markdown-body ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  padding: 0.15em 0.4em;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.markdown-body pre {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.8125rem;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+}
+
+.markdown-body th,
+.markdown-body td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.markdown-body th {
+  background: var(--bg-elevated);
+  font-weight: 600;
+}
+
+.markdown-body tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.markdown-body hr {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.markdown-body strong {
+  font-weight: 600;
+}
+
 .dashboard-hero {
   margin-bottom: 1.5rem;
 }

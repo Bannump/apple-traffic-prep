@@ -4,10 +4,11 @@ import { useSprintState } from './hooks/useSprintState';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { DayView } from './components/DayView';
+import { StudyPage } from './components/StudyPage';
 import { NotesModal } from './components/NotesModal';
 
 export default function App() {
-  const [view, setView] = useState('dashboard');
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study'
   const [currentDay, setCurrentDay] = useState(1);
   const [notesModal, setNotesModal] = useState({
     open: false,
@@ -62,6 +63,14 @@ export default function App() {
           >
             Day View
           </button>
+          <button
+            type="button"
+            className={`view-toggle${view === 'study' ? ' active' : ''}`}
+            onClick={() => setView('study')}
+            aria-pressed={view === 'study'}
+          >
+            UDP Project Deep Dive
+          </button>
         </header>
 
         {view === 'dashboard' && (
@@ -76,6 +85,7 @@ export default function App() {
             onOpenNotes={handleOpenNotes}
           />
         )}
+        {view === 'study' && <StudyPage />}
       </main>
 
       <NotesModal
