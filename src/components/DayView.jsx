@@ -21,7 +21,7 @@ export function DayView({ dayData, completed, getNotes, onToggleCompleted, onOpe
     <section className="view view-day active">
       <div className="day-header">
         <h2 className="day-title">
-          Day {dayData.day}: {dayData.title}
+          Day {dayData.day}{dayData.dateLabel ? ` — ${dayData.dateLabel}` : ''}: {dayData.title}
         </h2>
         <p className="day-focus">{dayData.focus}</p>
         <div className="day-progress">
