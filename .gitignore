@@ -1,0 +1,6 @@
+# Dependencies & build
+node_modules/
+dist/
+
+# C++ practice (local study, not for repo)
+cpp-practice/
