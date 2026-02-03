@@ -14,7 +14,7 @@ export function Dashboard({ completed, onSelectDay }) {
     <section className="view view-dashboard active">
       <div className="dashboard-hero">
         <h2>Sprint Overview</h2>
-        <p className="dashboard-sub">11:00 AM – 7:30 PM • Track tasks & notes by day</p>
+        <p className="dashboard-sub">7-Hour Daily Block • Track tasks & notes by day</p>
       </div>
       <div className="day-cards">
         {SPRINT_SCHEDULE.map((d) => {

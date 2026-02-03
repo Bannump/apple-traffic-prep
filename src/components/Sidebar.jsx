@@ -28,7 +28,7 @@ export function Sidebar({ currentDay, onSelectDay, completed }) {
   return (
     <aside className="sidebar">
       <header className="sidebar-header">
-        <p className="logo-sub">7-Day Sprint</p>
+        <p className="logo-sub">3-Day Sprint</p>
       </header>
       <nav className="day-nav">
         {SPRINT_SCHEDULE.map((d) => {

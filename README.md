@@ -1,6 +1,6 @@
-# Apple Traffic 7-Day Sprint Tracker
+# Apple Traffic 3-Day Sprint Tracker
 
-React dashboard to track tasks and notes for the Apple Traffic 7-day interview prep sprint (11:00 AM – 7:30 PM).
+React dashboard to track tasks and notes for the Apple Traffic 3-day interview prep sprint (7-hour daily block).
 
 ## Tech stack
 
