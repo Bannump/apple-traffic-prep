@@ -245,6 +245,135 @@ body {
   line-height: 1.6;
 }
 
+/* UDP diagrams (component + flow charts) */
+.udp-diagrams {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.diagrams-heading {
+  margin: 0 0 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.diagram-figure {
+  margin: 0 0 2rem;
+}
+
+.diagram-figure figcaption {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.diagram-wrap {
+  overflow-x: auto;
+  padding: 1rem 0;
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.diagram-wrap.diagram-wide {
+  max-width: 100%;
+}
+
+.diagram-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--text);
+}
+
+.diagram-svg .diagram-box {
+  fill: var(--bg-elevated);
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.diagram-svg .diagram-boundary {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.diagram-svg .diagram-external {
+  fill: rgba(59, 130, 246, 0.12);
+  stroke: var(--accent);
+}
+
+.diagram-svg .diagram-producer {
+  fill: rgba(34, 197, 94, 0.12);
+  stroke: var(--success);
+}
+
+.diagram-svg .diagram-queue {
+  fill: rgba(251, 191, 36, 0.1);
+  stroke: #ca8a04;
+}
+
+.diagram-svg .diagram-worker {
+  fill: rgba(59, 130, 246, 0.12);
+  stroke: var(--accent);
+}
+
+.diagram-svg .diagram-fn {
+  fill: var(--bg-elevated);
+  stroke: var(--text-muted);
+}
+
+.diagram-svg .diagram-shm {
+  fill: rgba(168, 85, 247, 0.12);
+  stroke: #a855f7;
+}
+
+.diagram-svg .diagram-reader {
+  fill: rgba(148, 163, 184, 0.12);
+  stroke: #94a3b8;
+}
+
+.diagram-svg .diagram-step {
+  fill: var(--bg-elevated);
+  stroke: var(--border);
+}
+
+.diagram-svg .diagram-start {
+  fill: var(--bg-elevated);
+  stroke: var(--accent);
+}
+
+.diagram-svg .diagram-ok {
+  fill: rgba(34, 197, 94, 0.15);
+  stroke: var(--success);
+}
+
+.diagram-svg .diagram-drop {
+  fill: rgba(239, 68, 68, 0.12);
+  stroke: #ef4444;
+}
+
+.diagram-svg .diagram-text {
+  fill: currentColor;
+  font-family: var(--font-sans);
+  font-size: 12px;
+}
+
+.diagram-svg .diagram-text-small {
+  font-size: 11px;
+}
+
+.diagram-svg .diagram-text-tiny {
+  font-size: 10px;
+}
+
+.diagram-svg .diagram-text-center {
+  text-anchor: middle;
+}
+
 .markdown-body h1 {
   margin: 0 0 1rem;
   font-size: 1.75rem;
