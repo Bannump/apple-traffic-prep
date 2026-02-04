@@ -2,6 +2,64 @@ This document maps my Amagi experience directly to the technical and operational
 
 ---
 
+I bridge the gap between high-level architectural impact and low-level systems engineering. Apple’s Traffic team values engineers who understand how code affects the underlying network and infrastructure.
+
+### **The "Elevator Pitch"**
+
+"At Amagi, I was a Software Engineer within the Traffic Systems team, specifically focusing on our **Thunderstorm SSAI product** and **AWS EKS-based** media delivery platform. My role sat at the intersection of networking, proxy engineering, and infrastructure automation. I was responsible for managing ingress/egress traffic for a distributed platform of over 15 microservices, where I optimized load balancing and ensured a **99.9% release stability** for high-concurrency media workflows.
+  
+Beyond traffic management, I worked heavily on **Infrastructure-as-Code (Terraform)** and **GitOps (ArgoCD)** to automate our environment provisioning, which eventually cut setup times by 90% and reduced CDN delivery failures by 95%."
+
+---
+
+### **Specific Technical Proof Points (Deep Dives)**
+
+You should be prepared to expand on these three areas if they drill down:
+
+#### **1. High-Performance Proxy & Traffic Engineering**
+
+* **Context:** You managed a **Manifest Manipulator** proxy to handle SCTE-35/104 markers.
+* 
+**The Technical "Win":** Explain how you optimized **FastAPI-based asynchronous APIs** to reduce **P99 latency** for data processing tools.
+
+
+* 
+**Apple Angle:** Focus on how you optimized request handling logic to ensure minimal overhead, similar to how Apple builds performant networking primitives.
+
+
+
+#### **2. Systems Reliability & Monitoring (SLOs)**
+
+* 
+**The Action:** You defined **Service Level Objectives (SLOs)** and built **Grafana dashboards** to monitor the "Golden Signals" (Latency, Traffic, Errors, Saturation).
+
+
+* 
+**The Result:** This automation of root cause analysis reduced manual debugging time by **60%**.
+
+
+
+#### **3. Critical Problem Solving (The "Rescue Content" Incident)**
+
+* **The Story:** Mention the time you saved a news channel broadcast by drilling into **Kubernetes pod ingress** to find a missing audio flag.
+* **The Logic:** You didn't just fix it manually; you implemented a **failover protocol** that checks both primary and secondary streams for specific flags before making an automated switch.
+
+---
+
+### **Strategic Advice for the Interview**
+
+* 
+**Connect to C++:** Although much of Amagi was Python/FastAPI, relate it to your **C++ socket programming** project. Mention that your understanding of **low-level TCP/UDP protocols** allowed you to better configure the WebRTC and HLS ingress at Amagi.
+
+
+* 
+**Focus on Trade-offs:** When discussing your **ArgoCD and Terraform** work, explain why you moved to a GitOps model (e.g., consistency, speed of rollbacks, and zero-downtime rollouts).
+
+
+* 
+**Mention "Scale":** Always emphasize that you weren't just managing one server, but a **distributed Kubernetes platform** handling 15+ microservices and high-concurrency traffic.
+
+
 # **Apple Technical Deep-Dive: Amagi Media Labs Experience**
 
 **Target Focus:** Traffic Proxies, Distributed Systems, and Infrastructure Automation.
