@@ -7,10 +7,11 @@ import { DayView } from './components/DayView';
 import { StudyPage } from './components/StudyPage';
 import { TechnicalGuidePage } from './components/TechnicalGuidePage';
 import { InterviewProcessPage } from './components/InterviewProcessPage';
+import { AmagiExperiencePage } from './components/AmagiExperiencePage';
 import { NotesModal } from './components/NotesModal';
 
 export default function App() {
-  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide' | 'interview-process'
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide' | 'interview-process' | 'amagi-experience'
   const [currentDay, setCurrentDay] = useState(1);
   const [notesModal, setNotesModal] = useState({
     open: false,
@@ -89,6 +90,14 @@ export default function App() {
           >
             Expected Interview Process
           </button>
+          <button
+            type="button"
+            className={`view-toggle${view === 'amagi-experience' ? ' active' : ''}`}
+            onClick={() => setView('amagi-experience')}
+            aria-pressed={view === 'amagi-experience'}
+          >
+            Amagi Experience
+          </button>
         </header>
 
         {view === 'dashboard' && (
@@ -106,6 +115,7 @@ export default function App() {
         {view === 'study' && <StudyPage />}
         {view === 'technical-guide' && <TechnicalGuidePage />}
         {view === 'interview-process' && <InterviewProcessPage />}
+        {view === 'amagi-experience' && <AmagiExperiencePage />}
       </main>
 
       <NotesModal
