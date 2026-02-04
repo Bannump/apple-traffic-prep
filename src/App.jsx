@@ -6,10 +6,11 @@ import { Dashboard } from './components/Dashboard';
 import { DayView } from './components/DayView';
 import { StudyPage } from './components/StudyPage';
 import { TechnicalGuidePage } from './components/TechnicalGuidePage';
+import { InterviewProcessPage } from './components/InterviewProcessPage';
 import { NotesModal } from './components/NotesModal';
 
 export default function App() {
-  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide'
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide' | 'interview-process'
   const [currentDay, setCurrentDay] = useState(1);
   const [notesModal, setNotesModal] = useState({
     open: false,
@@ -80,6 +81,14 @@ export default function App() {
           >
             Technical Guide
           </button>
+          <button
+            type="button"
+            className={`view-toggle${view === 'interview-process' ? ' active' : ''}`}
+            onClick={() => setView('interview-process')}
+            aria-pressed={view === 'interview-process'}
+          >
+            Expected Interview Process
+          </button>
         </header>
 
         {view === 'dashboard' && (
@@ -96,6 +105,7 @@ export default function App() {
         )}
         {view === 'study' && <StudyPage />}
         {view === 'technical-guide' && <TechnicalGuidePage />}
+        {view === 'interview-process' && <InterviewProcessPage />}
       </main>
 
       <NotesModal
