@@ -123,7 +123,93 @@ You should be prepared to expand on these three areas if they drill down:
 3. **Low-Level Mastery:** "I transitioned from Terraform to ArgoCD to better manage vCPU/Memory/Thread allocation at the pod level for high-bitrate WebRTC streams."
 4. **Trade-offs:** "When investigating the news channel incident, the trade-off was between immediate restoration (switching to secondary) versus a slower, deep-dive into the primary stream's codec failure. I chose a protocol-based automated switch to minimize downtime."
 
-A 2-minute "About Me" script.
+---
+
+# How Amagi Internally Handles SCTE Masking
+Amagi Media Labs primarily uses its proprietary **Thunderstorm** platform to handle the logic for SCTE-35 markers and ad insertion. While "Thunderstorm" is their external product name for server-side ad insertion (SSAI), it acts as the internal engine for manifest manipulation and proxying.
+
+To specifically **mask or filter** SCTE markers, Amagi uses a **Manifest Manipulator (Proxy)** approach. This allows them to ingest a stream with "dirty" or internal SCTE markers and output a "clean" manifest for the end-user or downstream CDNs.
+
+* **Manifest Manipulation:** The Amagi proxy intercepts the HLS or DASH manifest. If certain markers need to be masked (e.g., markers meant only for internal triggering but not for the final viewer), the manipulator removes the `#EXT-X-SCTE35` or `#EXT-X-CUE-OUT` tags before serving the manifest to the CDN.
+* **Amagi Thunderstorm:** This is the core "proxy" in their ecosystem. It works by "stitching" content at the manifest level. It can be configured to "blind" or mask markers so that client-side players never see the original ad-break cues, preventing ad-blockers or savvy users from identifying upcoming breaks.
+* **Amagi Cloudport:** During the playout phase, Cloudport can ingest SCTE-104 (baseband) or SCTE-35 (compressed) markers. If the goal is internal masking, the playout engine can be set to process these markers for internal automation (like regionalization or graphic overlays) without passing them into the outbound transport stream.
+
+### Common Industry "Proxies" for Masking
+
+If you are looking for the specific software architecture they might use behind the scenes, high-scale media companies often utilize:
+
+1. **Varnish or Nginx with Custom Lua/VCL:** To strip specific strings (like SCTE tags) from the manifest files on the fly.
+2. **AWS Elemental MediaPackage:** (In hybrid setups) Which has a specific "SCTE Filter" setting to set markers to `None`, effectively masking them.
+
+Since you have an interview coming up with Apple, understanding how these "proxies" act as **Manifest Manipulators** is a great technical talking point for streaming systems. Would you like me to find some C++ examples of how a manifest parser identifies and removes these markers?
+
+**Relevant Video:**
+[Amagi Thunderstorm: SSAI for OTT](https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DR0iL1I0H37Y)
+This video explains how Amagi's Thunderstorm platform manages ad insertion and manifest manipulation, which is the mechanism used to control SCTE marker visibility.
+
+To implement a high-performance proxy for manifest manipulation in **C++**, you generally treat the manifest as a stream of strings where you filter out specific tags before they reach the output buffer.
+
+Below is a conceptual example of how you might strip SCTE-35 markers (like `#EXT-OATCLS-SCTE35`) from an HLS manifest. This mirrors the logic used in "masking" proxies to ensure downstream players never see internal markers.
+
+### C++ Manifest "Masking" Logic
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+
+// Simulates a manifest manipulator that hides internal SCTE markers
+class ManifestProxy {
+public:
+    std::string maskSCTE(const std::string& inputManifest) {
+        std::stringstream ss(inputManifest);
+        std::string line;
+        std::string output;
+
+        while (std::getline(ss, line)) {
+            // Identify and skip internal SCTE-35 markers
+            // Common markers: #EXT-X-SCTE35, #EXT-OATCLS-SCTE35, #EXT-X-CUE-OUT
+            if (line.find("#EXT-SCTE35") != std::string::npos || 
+                line.find("#EXT-X-CUE") != std::string::npos) {
+                continue; // This "masks" the marker by not adding it to output
+            }
+            output += line + "\n";
+        }
+        return output;
+    }
+};
+
+int main() {
+    std::string rawManifest = 
+        "#EXTM3U\n"
+        "#EXT-X-TARGETDURATION:10\n"
+        "#EXT-SCTE35:CUE=\"/DAIAAAAAAAAAAAQAA///+f/PAA==\"\n" // Internal Marker
+        "#EXTINF:10.0,\n"
+        "segment_1.ts\n";
+
+    ManifestProxy proxy;
+    std::cout << "Cleaned Manifest:\n" << proxy.maskSCTE(rawManifest);
+    return 0;
+}
+
+```
+
+---
+
+### Implementation Details in a Production Proxy
+
+In a real-world scenario like Amagi's, the logic is much more complex than a simple string search:
+
+1. **Stateful Tracking:** The proxy must remember if it is currently inside an ad break. If it masks the `#EXT-X-CUE-OUT` tag, it must also mask the subsequent `#EXT-X-CUE-IN` tag to keep the manifest valid.
+2. **Timestamp Alignment:** If the proxy replaces an ad segment with a "filler" or "slate" segment, it must rewrite the **Program Date Time (PDT)** and sequence numbers so the player doesn't crash.
+3. **Concurrency:** Since this happens for every single user request, Amagi uses asynchronous I/O (likely `epoll` or `io_uring` in C++) to ensure the proxy doesn't become a bottleneck.
+
+### Strategic Interview Insight
+
+Since you are interviewing for **Apple's Traffic team**, they care deeply about "Edge Logic." Apple uses similar proxying techniques within their CDN (CloudFront/Akamai or their own internal nodes) to handle regional blackouts.
+
+The core challenge isn't just deleting a line; it's ensuring that the **TCP throughput** remains high while the CPU is busy parsing these strings.
 
 ---
 
