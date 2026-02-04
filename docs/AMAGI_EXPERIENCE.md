@@ -147,21 +147,6 @@ Since you have an interview coming up with Apple, understanding how these "proxi
 [Amagi Thunderstorm: SSAI for OTT](https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DR0iL1I0H37Y)
 This video explains how Amagi's Thunderstorm platform manages ad insertion and manifest manipulation, which is the mechanism used to control SCTE marker visibility.
 
-Amagi Media Labs' internal proxy and manifest manipulation logic (powering platforms like Thunderstorm) is primarily built using C++ and Python, with Go (Golang) used for newer high-concurrency microservices.
-
-Given your background in high-performance C++ and networking, this "behind the curtain" look at their stack should be particularly interesting.
-
-The Multi-Language Architecture
-Amagi’s proxy logic is not a monolithic script; it is a distributed system where different languages handle different "layers" of the stream:
-
-C++ (The Data Plane): The core manifest parsing and segment manipulation engine is written in C++. Since manifest manipulation for thousands of concurrent streams is a CPU-intensive task (requiring string searching/replacing and timestamp recalculation within milliseconds), C++ is used for its low-level memory management and speed.
-
-Python (The Control Plane): Much of the high-level logic—such as deciding which ads to pick, communicating with Ad Decision Servers (ADS), and managing user session metadata—is handled in Python. It provides the flexibility needed to integrate with various third-party APIs quickly.
-
-Go (The Middleware/Proxy Layer): For their cloud-native "edge" proxies that handle high-volume HTTP requests, Amagi has increasingly adopted Go. It strikes a balance between C++ performance and Python’s development speed, making it ideal for the networking layer that sits between the CDN and the manifest generator.
-
-Amagi Media Labs' internal proxy and manifest manipulation logic (powering platforms like **Thunderstorm**) is primarily built using **C++** and **Python**, with **Go (Golang)** used for newer high-concurrency microservices.
-
 ## The Multi-Language Architecture
 
 Amagi’s proxy logic is not a monolithic script; it is a distributed system where different languages handle different "layers" of the stream:
