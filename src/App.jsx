@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { SPRINT_SCHEDULE } from './data/schedule';
 import { useSprintState } from './hooks/useSprintState';
-import { Sidebar } from './components/Sidebar';
+import { ScheduleTopBar } from './components/ScheduleTopBar';
+import { LeftNav } from './components/LeftNav';
 import { Dashboard } from './components/Dashboard';
 import { DayView } from './components/DayView';
 import { StudyPage } from './components/StudyPage';
@@ -42,81 +43,33 @@ export default function App() {
 
   return (
     <div className="app">
-      <Sidebar
+      <ScheduleTopBar
+        view={view}
         currentDay={currentDay}
         onSelectDay={handleSelectDay}
         completed={completed}
       />
-      <main className="main">
-        <h1 className="page-heading">Apple Software Engineer (ASE) Traffic Preparation</h1>
-        <header className="main-header">
-          <button
-            type="button"
-            className={`view-toggle${view === 'dashboard' ? ' active' : ''}`}
-            onClick={() => setView('dashboard')}
-            aria-pressed={view === 'dashboard'}
-          >
-            Dashboard
-          </button>
-          <button
-            type="button"
-            className={`view-toggle${view === 'day' ? ' active' : ''}`}
-            onClick={() => setView('day')}
-            aria-pressed={view === 'day'}
-          >
-            Day View
-          </button>
-          <button
-            type="button"
-            className={`view-toggle${view === 'study' ? ' active' : ''}`}
-            onClick={() => setView('study')}
-            aria-pressed={view === 'study'}
-          >
-            UDP Deep Dive
-          </button>
-          <button
-            type="button"
-            className={`view-toggle${view === 'technical-guide' ? ' active' : ''}`}
-            onClick={() => setView('technical-guide')}
-            aria-pressed={view === 'technical-guide'}
-          >
-            Technical Guide
-          </button>
-          <button
-            type="button"
-            className={`view-toggle${view === 'interview-process' ? ' active' : ''}`}
-            onClick={() => setView('interview-process')}
-            aria-pressed={view === 'interview-process'}
-          >
-            Expected Interview Process
-          </button>
-          <button
-            type="button"
-            className={`view-toggle${view === 'amagi-experience' ? ' active' : ''}`}
-            onClick={() => setView('amagi-experience')}
-            aria-pressed={view === 'amagi-experience'}
-          >
-            Amagi Experience
-          </button>
-        </header>
-
-        {view === 'dashboard' && (
-          <Dashboard completed={completed} onSelectDay={handleSelectDay} />
-        )}
-        {view === 'day' && (
-          <DayView
-            dayData={dayData}
-            completed={completed}
-            getNotes={getNotes}
-            onToggleCompleted={toggleCompleted}
-            onOpenNotes={handleOpenNotes}
-          />
-        )}
-        {view === 'study' && <StudyPage />}
-        {view === 'technical-guide' && <TechnicalGuidePage />}
-        {view === 'interview-process' && <InterviewProcessPage />}
-        {view === 'amagi-experience' && <AmagiExperiencePage />}
-      </main>
+      <div className="app-body">
+        <LeftNav view={view} setView={setView} />
+        <main className="main">
+          {view === 'dashboard' && (
+            <Dashboard completed={completed} onSelectDay={handleSelectDay} />
+          )}
+          {view === 'day' && (
+            <DayView
+              dayData={dayData}
+              completed={completed}
+              getNotes={getNotes}
+              onToggleCompleted={toggleCompleted}
+              onOpenNotes={handleOpenNotes}
+            />
+          )}
+          {view === 'study' && <StudyPage />}
+          {view === 'technical-guide' && <TechnicalGuidePage />}
+          {view === 'interview-process' && <InterviewProcessPage />}
+          {view === 'amagi-experience' && <AmagiExperiencePage />}
+        </main>
+      </div>
 
       <NotesModal
         isOpen={notesModal.open}
