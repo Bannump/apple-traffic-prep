@@ -147,6 +147,40 @@ Since you have an interview coming up with Apple, understanding how these "proxi
 [Amagi Thunderstorm: SSAI for OTT](https://www.google.com/search?q=https://www.youtube.com/watch%3Fv%3DR0iL1I0H37Y)
 This video explains how Amagi's Thunderstorm platform manages ad insertion and manifest manipulation, which is the mechanism used to control SCTE marker visibility.
 
+Amagi Media Labs' internal proxy and manifest manipulation logic (powering platforms like Thunderstorm) is primarily built using C++ and Python, with Go (Golang) used for newer high-concurrency microservices.
+
+Given your background in high-performance C++ and networking, this "behind the curtain" look at their stack should be particularly interesting.
+
+The Multi-Language Architecture
+Amagi’s proxy logic is not a monolithic script; it is a distributed system where different languages handle different "layers" of the stream:
+
+C++ (The Data Plane): The core manifest parsing and segment manipulation engine is written in C++. Since manifest manipulation for thousands of concurrent streams is a CPU-intensive task (requiring string searching/replacing and timestamp recalculation within milliseconds), C++ is used for its low-level memory management and speed.
+
+Python (The Control Plane): Much of the high-level logic—such as deciding which ads to pick, communicating with Ad Decision Servers (ADS), and managing user session metadata—is handled in Python. It provides the flexibility needed to integrate with various third-party APIs quickly.
+
+Go (The Middleware/Proxy Layer): For their cloud-native "edge" proxies that handle high-volume HTTP requests, Amagi has increasingly adopted Go. It strikes a balance between C++ performance and Python’s development speed, making it ideal for the networking layer that sits between the CDN and the manifest generator.
+
+Amagi Media Labs' internal proxy and manifest manipulation logic (powering platforms like **Thunderstorm**) is primarily built using **C++** and **Python**, with **Go (Golang)** used for newer high-concurrency microservices.
+
+## The Multi-Language Architecture
+
+Amagi’s proxy logic is not a monolithic script; it is a distributed system where different languages handle different "layers" of the stream:
+
+* **C++ (The Data Plane):** The core manifest parsing and segment manipulation engine is written in C++. Since manifest manipulation for thousands of concurrent streams is a CPU-intensive task (requiring string searching/replacing and timestamp recalculation within milliseconds), C++ is used for its low-level memory management and speed.
+* **Python (The Control Plane):** Much of the high-level logic—such as deciding *which* ads to pick, communicating with Ad Decision Servers (ADS), and managing user session metadata—is handled in Python. It provides the flexibility needed to integrate with various third-party APIs quickly.
+* **Go (The Middleware/Proxy Layer):** For their cloud-native "edge" proxies that handle high-volume HTTP requests, Amagi has increasingly adopted Go. It strikes a balance between C++ performance and Python’s development speed, making it ideal for the networking layer that sits between the CDN and the manifest generator.
+* **Lua (Edge Scripting):** Like many high-scale media companies, they often use Lua scripts (via OpenResty/Nginx) for ultra-fast header manipulation and simple "masking" rules at the extreme edge of their network.
+
+## Why This Stack?
+
+Amagi refers to their architecture as "cloud-born." By using C++ for the heavy lifting, they ensure that the **Manifest Manipulator** can process SCTE-35 markers without introducing "manifest lag," which would cause buffering on the viewer's device.
+
+> **Technical Note:** In the context of your upcoming **Apple Traffic Engineering** interview, you might find it useful to compare this to how Apple handles HLS manifests. Apple's internal tools often lean heavily on **C++ and Objective-C/Swift** for similar low-level stream processing to maintain the strict timing requirements of the HLS specification.
+
+## How It Relates to My Project
+
+My "High-Performance Multi-Threaded UDP Server" in C++ is conceptually similar to the core of Amagi's ingest engine. While they handle TCP (HTTP/HLS), the multi-threading and low-latency principles you used for UDP are exactly what they look for in engineers managing these proxies.
+
 To implement a high-performance proxy for manifest manipulation in **C++**, you generally treat the manifest as a stream of strings where you filter out specific tags before they reach the output buffer.
 
 Below is a conceptual example of how you might strip SCTE-35 markers (like `#EXT-OATCLS-SCTE35`) from an HLS manifest. This mirrors the logic used in "masking" proxies to ensure downstream players never see internal markers.
