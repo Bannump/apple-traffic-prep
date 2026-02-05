@@ -9,10 +9,11 @@ import { StudyPage } from './components/StudyPage';
 import { TechnicalGuidePage } from './components/TechnicalGuidePage';
 import { InterviewProcessPage } from './components/InterviewProcessPage';
 import { AmagiExperiencePage } from './components/AmagiExperiencePage';
+import { InsightsQAPage } from './components/InsightsQAPage';
 import { NotesModal } from './components/NotesModal';
 
 export default function App() {
-  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide' | 'interview-process' | 'amagi-experience'
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide' | 'interview-process' | 'amagi-experience' | 'insights-qa'
   const [currentDay, setCurrentDay] = useState(1);
   const [notesModal, setNotesModal] = useState({
     open: false,
@@ -68,6 +69,7 @@ export default function App() {
           {view === 'technical-guide' && <TechnicalGuidePage />}
           {view === 'interview-process' && <InterviewProcessPage />}
           {view === 'amagi-experience' && <AmagiExperiencePage />}
+          {view === 'insights-qa' && <InsightsQAPage />}
         </main>
       </div>
 
