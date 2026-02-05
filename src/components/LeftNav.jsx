@@ -7,6 +7,7 @@ const TABS = [
   { id: 'technical-guide', label: 'Technical Guide' },
   { id: 'interview-process', label: 'Expected Interview Process' },
   { id: 'amagi-experience', label: 'Amagi Experience' },
+  { id: 'insights-qa', label: 'Insights/Q&As' },
 ];
 
 export function LeftNav({ view, setView }) {
