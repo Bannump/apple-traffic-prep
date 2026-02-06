@@ -3,6 +3,9 @@
    Dark theme (black background)
    ============================================ */
 
+/* Syntax highlighting for markdown code blocks */
+@import "highlight.js/styles/github-dark.min.css";
+
 :root {
   --bg: #0a0a0a;
   --bg-elevated: #111111;
