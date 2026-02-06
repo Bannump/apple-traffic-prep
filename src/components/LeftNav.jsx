@@ -10,9 +10,23 @@ const TABS = [
   { id: 'insights-qa', label: 'Insights/Q&As' },
 ];
 
-export function LeftNav({ view, setView }) {
+export function LeftNav({ view, setView, collapsed, onToggleCollapse }) {
   return (
-    <nav className="left-nav" aria-label="Main navigation">
+    <nav
+      className={`left-nav${collapsed ? ' left-nav--collapsed' : ''}`}
+      aria-label="Main navigation"
+    >
+      <button
+        type="button"
+        className="left-nav-toggle"
+        onClick={onToggleCollapse}
+        aria-label={collapsed ? 'Expand side panel' : 'Collapse side panel'}
+        title={collapsed ? 'Expand panel' : 'Collapse panel'}
+      >
+        <span className="left-nav-toggle-icon" aria-hidden="true">
+          {collapsed ? '›' : '‹'}
+        </span>
+      </button>
       {TABS.map((tab) => (
         <button
           key={tab.id}
@@ -20,8 +34,9 @@ export function LeftNav({ view, setView }) {
           className={`left-nav-item${view === tab.id ? ' active' : ''}`}
           onClick={() => setView(tab.id)}
           aria-pressed={view === tab.id}
+          title={collapsed ? tab.label : undefined}
         >
-          {tab.label}
+          {collapsed ? <span className="left-nav-item-short">{tab.label.charAt(0)}</span> : tab.label}
         </button>
       ))}
     </nav>

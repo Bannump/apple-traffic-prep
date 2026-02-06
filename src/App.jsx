@@ -14,6 +14,7 @@ import { NotesModal } from './components/NotesModal';
 
 export default function App() {
   const [view, setView] = useState('dashboard'); // 'dashboard' | 'day' | 'study' | 'technical-guide' | 'interview-process' | 'amagi-experience' | 'insights-qa'
+  const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
   const [currentDay, setCurrentDay] = useState(1);
   const [notesModal, setNotesModal] = useState({
     open: false,
@@ -50,26 +51,33 @@ export default function App() {
         onSelectDay={handleSelectDay}
         completed={completed}
       />
-      <div className="app-body">
-        <LeftNav view={view} setView={setView} />
+      <div className={`app-body${sidePanelCollapsed ? ' app-body--sidebar-collapsed' : ''}`}>
+        <LeftNav
+          view={view}
+          setView={setView}
+          collapsed={sidePanelCollapsed}
+          onToggleCollapse={() => setSidePanelCollapsed((c) => !c)}
+        />
         <main className="main">
-          {view === 'dashboard' && (
-            <Dashboard completed={completed} onSelectDay={handleSelectDay} />
-          )}
-          {view === 'day' && (
-            <DayView
-              dayData={dayData}
-              completed={completed}
-              getNotes={getNotes}
-              onToggleCompleted={toggleCompleted}
-              onOpenNotes={handleOpenNotes}
-            />
-          )}
-          {view === 'study' && <StudyPage />}
-          {view === 'technical-guide' && <TechnicalGuidePage />}
-          {view === 'interview-process' && <InterviewProcessPage />}
-          {view === 'amagi-experience' && <AmagiExperiencePage />}
-          {view === 'insights-qa' && <InsightsQAPage />}
+          <div className="main-inner">
+            {view === 'dashboard' && (
+              <Dashboard completed={completed} onSelectDay={handleSelectDay} />
+            )}
+            {view === 'day' && (
+              <DayView
+                dayData={dayData}
+                completed={completed}
+                getNotes={getNotes}
+                onToggleCompleted={toggleCompleted}
+                onOpenNotes={handleOpenNotes}
+              />
+            )}
+            {view === 'study' && <StudyPage />}
+            {view === 'technical-guide' && <TechnicalGuidePage />}
+            {view === 'interview-process' && <InterviewProcessPage />}
+            {view === 'amagi-experience' && <AmagiExperiencePage />}
+            {view === 'insights-qa' && <InsightsQAPage />}
+          </div>
         </main>
       </div>
 

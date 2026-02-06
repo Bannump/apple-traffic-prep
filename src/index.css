@@ -206,6 +206,10 @@ body {
   min-height: 0;
 }
 
+.app-body--sidebar-collapsed {
+  grid-template-columns: 52px 1fr;
+}
+
 /* ----- Left nav (tabs) ----- */
 .left-nav {
   display: flex;
@@ -215,6 +219,63 @@ body {
   background: var(--bg-elevated);
   border-right: 1px solid var(--border);
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.2s ease, min-width 0.2s ease;
+}
+
+.left-nav--collapsed {
+  padding: 0.75rem 0.5rem;
+}
+
+.left-nav-toggle {
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 36px;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.left-nav-toggle:hover {
+  background: var(--bg-elevated);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.left-nav-toggle-icon {
+  line-height: 1;
+}
+
+.left-nav--collapsed .left-nav-toggle {
+  width: 36px;
+  min-height: 36px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+}
+
+.left-nav--collapsed .left-nav-item {
+  padding: 0.65rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.left-nav--collapsed .left-nav-item-short {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.left-nav-item {
+  display: flex;
+  align-items: center;
 }
 
 .left-nav-item {
@@ -231,6 +292,7 @@ body {
   line-height: 1.4;
   cursor: pointer;
   transition: background var(--transition), color var(--transition), border-color var(--transition);
+  box-sizing: border-box;
 }
 
 .left-nav-item:hover {
@@ -250,8 +312,23 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
   background: var(--bg);
-  overflow: auto;
+  overflow-x: scroll;
+  overflow-y: auto;
+}
+
+.main-inner {
+  min-width: 100%;
+  width: max-content;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: min-content;
+}
+
+.main > * {
+  min-width: min-content;
 }
 
 .view {
