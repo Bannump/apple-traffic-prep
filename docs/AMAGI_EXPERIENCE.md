@@ -213,7 +213,9 @@ int main() {
 }
 
 ```
-
+## To run: 
+    1. $env:PATH = "C:\msys64\mingw64\bin;" + $env:PATH
+    2. g++ -mconsole -std=c++11 manifestproxy.cpp -o manifestproxy.exe
 ---
 
 ### Implementation Details in a Production Proxy

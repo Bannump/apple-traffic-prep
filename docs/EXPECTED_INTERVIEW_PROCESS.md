@@ -267,6 +267,9 @@ int main() {
     return 0;
 }
 ```
+## To run: 
+    1. $env:PATH = "C:\msys64\mingw64\bin;" + $env:PATH
+    2. g++ -mconsole -std=c++11 ratelimiter.cpp -o ratelimiter.exe
 
 ---
 
