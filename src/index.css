@@ -24,6 +24,11 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   --transition: 0.2s ease;
+  /* Content width: centered, readable, responsive */
+  --content-max-width: 72rem;
+  --content-readable-width: 52rem;
+  --content-padding-inline: clamp(1rem, 5vw, 1.5rem);
+  --content-padding-block: clamp(1rem, 4vw, 1.5rem);
 }
 
 *,
@@ -314,21 +319,34 @@ body {
   min-width: 0;
   min-height: 0;
   background: var(--bg);
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: auto;
 }
 
 .main-inner {
-  min-width: 100%;
-  width: max-content;
+  width: 100%;
+  min-width: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   min-height: min-content;
 }
 
+/* Centered content container: balanced layout, works on all screens */
+.main-content {
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--content-padding-block) var(--content-padding-inline);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .main > * {
-  min-width: min-content;
+  min-width: 0;
 }
 
 .view {
@@ -336,6 +354,8 @@ body {
   flex: 1;
   flex-direction: column;
   overflow: auto;
+  width: 100%;
+  min-width: 0;
 }
 
 .view.active {
@@ -343,22 +363,27 @@ body {
 }
 
 .view-dashboard {
-  padding: 1.5rem;
+  width: 100%;
+  max-width: var(--content-max-width);
 }
 
 /* ----- Study page (UDP Deep Dive doc) ----- */
 .view-study {
-  padding: 1.5rem;
+  width: 100%;
+  max-width: var(--content-max-width);
 }
 
 .study-page {
-  max-width: 52rem;
+  max-width: var(--content-readable-width);
   margin: 0 auto;
+  width: 100%;
 }
 
 .study-content {
   color: var(--text);
   line-height: 1.6;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* UDP diagrams (component + flow charts) */
@@ -662,7 +687,8 @@ body {
 }
 
 .view-day {
-  padding: 1.5rem;
+  width: 100%;
+  max-width: var(--content-max-width);
 }
 
 .day-header {
@@ -916,10 +942,18 @@ body {
   border-top: 1px solid var(--border);
 }
 
+/* ----- Responsive: tablet and below ----- */
 @media (max-width: 768px) {
+  .page-heading {
+    padding-left: var(--content-padding-inline);
+    padding-right: var(--content-padding-inline);
+  }
+
   .schedule-top-row {
     flex-direction: column;
     gap: 1rem;
+    padding-left: var(--content-padding-inline);
+    padding-right: var(--content-padding-inline);
   }
 
   .day-nav-horizontal {
@@ -947,11 +981,74 @@ body {
     min-height: 44px;
   }
 
+  .main-content {
+    padding: var(--content-padding-block) var(--content-padding-inline);
+  }
+
   .day-cards {
     grid-template-columns: 1fr;
   }
 
   .slot-header {
     flex-wrap: wrap;
+  }
+
+  .day-header {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .markdown-body pre,
+  .markdown-body table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .markdown-body table {
+    display: block;
+  }
+}
+
+/* ----- Responsive: mobile ----- */
+@media (max-width: 480px) {
+  .page-heading {
+    font-size: 1.25rem;
+  }
+
+  .day-nav-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .main-content {
+    padding: 0.75rem 1rem;
+  }
+
+  .dashboard-hero h2 {
+    font-size: 1.25rem;
+  }
+
+  .day-title {
+    font-size: 1.15rem;
+  }
+
+  .slot {
+    padding: 0.75rem 1rem;
+  }
+
+  .slot-title {
+    font-size: 0.9375rem;
+  }
+
+  .day-card {
+    padding: 1rem;
+  }
+
+  .markdown-body h1 {
+    font-size: 1.5rem;
+  }
+
+  .markdown-body h2 {
+    font-size: 1.1rem;
   }
 }

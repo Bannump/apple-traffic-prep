@@ -60,6 +60,7 @@ export default function App() {
         />
         <main className="main">
           <div className="main-inner">
+            <div className="main-content">
             {view === 'dashboard' && (
               <Dashboard completed={completed} onSelectDay={handleSelectDay} />
             )}
@@ -77,6 +78,7 @@ export default function App() {
             {view === 'interview-process' && <InterviewProcessPage />}
             {view === 'amagi-experience' && <AmagiExperiencePage />}
             {view === 'insights-qa' && <InsightsQAPage />}
+            </div>
           </div>
         </main>
       </div>
