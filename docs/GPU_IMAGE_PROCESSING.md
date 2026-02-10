@@ -17,10 +17,10 @@ Offloading the computation to a CUDA-enabled GPU. By treating each pixel (or blo
 ### Key Optimizations Implemented
 
 1. **Separable Kernels:** Instead of a single 2D convolution, the filter was decomposed into two 1D passes (horizontal and vertical). This mathematically reduced the complexity from O(n²) multiplications per pixel to O(n).
-In image processing or signal filtering, a standard **2D Convolution** scans a window (kernel) over every pixel. However, many kernels are **separable**, meaning a 2D matrix can be broken into two 1D vectors ($K_{2D} = v \cdot h^T$).
+In image processing or signal filtering, a standard **2D Convolution** scans a window (kernel) over every pixel. However, many kernels are **separable**, meaning a 2D matrix can be broken into two 1D vectors ({2D} = v . h^T).
 
-    * **2D Convolution:** For an  kernel, you perform $N^2$ multiplications per pixel.
-    * **Separable Convolution:** You perform one horizontal pass ( mults) and one vertical pass ( mults). Total:  per pixel.
+    * **2D Convolution:** For an  kernel, you perform N^2 multiplications per pixel.
+    * **Separable Convolution:** You perform one horizontal pass (N mults) and one vertical pass (N mults). Total: 2N(N + N) per pixel.
     * **The Impact:** For a 7x7 kernel, you go from **49 operations to 14**.
 ---
 
