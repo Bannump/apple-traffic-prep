@@ -325,3 +325,60 @@ If they hit you with any of these, here’s the safest way to respond:
   “I don’t want to invent numbers. What I can describe precisely is how we measured impact: p99 latency, error rate, and time-to-recover before/after the changes.”
 
 Apple respects honesty plus measurement thinking.
+
+---
+# L4 vs. L7 load balancing, Anycast routing, and Consistent Hashing
+
+## **1. L4 vs. L7 Load Balancing**
+
+This is the distinction between "blind" routing and "content-aware" routing.
+
+### **L4 (Transport Layer):**
+* **Basis:** Routes traffic based on **IP addresses and TCP/UDP ports**.
+* **Mechanism:** It does not look at the data inside the packet. It simply forwards the bytes.
+* **Pros:** Extremely fast (low latency), low CPU overhead, and handles high throughput.
+* **Cons:** No visibility into HTTP headers, cookies, or URLs. It cannot do "sticky sessions" based on user IDs or route `/api/v1` to a different service than `/api/v2`.
+
+
+
+### **L7 (Application Layer):**
+  * **Basis:** Routes traffic based on the **actual content** of the request (HTTP headers, cookies, URL paths, or gRPC metadata).
+  * **Mechanism:** The balancer must terminate the TCP connection, decrypt the TLS, and "read" the request before forwarding it.
+  * **Pros:** Highly intelligent. This is where your **Amagi Manifest Manipulator** logic lives. You can route based on the media type or user session.
+  * **Cons:** Higher latency and CPU usage because of the deep packet inspection and decryption.
+
+
+
+---
+
+### **2. Anycast Routing**
+
+Anycast is the "magic" that allows Apple to provide a single IP address (like for a DNS server or CDN) that works globally.
+
+* **The Concept:** Multiple physically separate servers (nodes) across the globe are assigned the **exact same IP address**.
+* **The Mechanism:** Using **BGP (Border Gateway Protocol)**, each node "advertises" its location to the internet. When a user sends a packet to that IP, the internet routers automatically send it to the "closest" node (measured by network hops).
+* **Use Case:** CDNs and DNS (like 8.8.8.8). If one data center goes down, the BGP route is withdrawn, and traffic automatically flows to the next closest healthy node without the user ever knowing.
+
+---
+
+### **3. Consistent Hashing**
+
+In a distributed system, you need to map millions of keys (users/packets) to a set of  servers.
+
+* **The Problem with Standard Hashing:** If you use `hash(key) % N`, and you add or remove one server (scaling up/down), almost every single key will map to a different server. This destroys caches and causes "thundering herd" issues.
+* **The Solution (Consistent Hashing):**
+* Both the **servers** and the **keys** are mapped onto a conceptual **Hash Ring** (a circle from  to ).
+* A key is assigned to the first server it encounters moving clockwise around the ring.
+* **Why it's better:** When a server is added or removed, only the keys that were previously mapped to that specific server need to be moved. On average, only  of the keys are remapped, providing massive stability for stateful traffic.
+
+
+
+---
+
+### **Interview Strategy: Connecting to your Projects**
+
+When Bryan and Nathan ask how you apply these, pivot to your experience:
+
+1. **Anycast:** "We used Anycast at the edge to ensure that media creators were hitting the closest Amagi ingress point, minimizing the initial WebRTC ingest latency."
+2. **L4 vs L7:** "I managed L4 NLBs for raw throughput and L7 ALBs when we needed to manipulate HLS manifests or perform path-based routing for our 15+ microservices."
+3. **Consistent Hashing:** "In my UDP server project, if I were to scale to multiple backend processors, I would implement consistent hashing to ensure that packets from the same `src_ip` always land on the same worker thread, maximizing L1/L2 cache locality."
