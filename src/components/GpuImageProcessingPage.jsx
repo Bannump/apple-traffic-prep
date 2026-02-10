@@ -2,10 +2,10 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import interviewProcessContent from '../../docs/EXPECTED_INTERVIEW_PROCESS.md?raw';
+import gpuImageProcessingContent from '../../docs/GPU_IMAGE_PROCESSING.md?raw';
 
-export function InterviewProcessPage() {
-  const content = interviewProcessContent || '';
+export function GpuImageProcessingPage() {
+  const content = gpuImageProcessingContent || '';
 
   return (
     <section className="view view-study active">
