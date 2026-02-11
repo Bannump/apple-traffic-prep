@@ -285,10 +285,168 @@ int main() {
 
 ## Quick example you can say out loud
 
-“If rate is 5/sec and burst is 10, the service can accept 10 requests instantly, then it sustains about 5 per second after that. If callers exceed it, they start getting rejected until tokens refill.”
+* `RateLimiter(2, 5)`
+* `rate_per_sec = 2.0` tokens/sec
+  → refills **0.4 tokens** every 200 ms (since 0.2 sec × 2 = 0.4)
+* `burst_capacity = 5.0`
+* Starts with `tokens = 5.0` (bucket full)
 
-**Answer:**
-“Token bucket has tokens that refill at rate r/sec up to capacity b. Each request consumes 1 token. If tokens available, allow; otherwise reject. It naturally supports bursts up to b while enforcing an average rate r.”
+Loop runs 10 times. Each iteration:
+
+1. Call `allow()` (refill tokens based on elapsed time since last call)
+2. If tokens ≥ 1, subtract 1 and print **Allowed**, else **Rejected**
+3. Sleep 200ms
+
+Important detail: the refill happens *inside* `allow()` using time since the previous call. Because you sleep after printing, each next call is about 200ms later, so refill is about +0.4 tokens each time.
+
+---
+
+## Step-by-step simulation (approximate, assuming perfect 200ms)
+
+I’ll track `tokens` **just before spending** a token, then after spending.
+
+### Start
+
+* tokens = 5.0
+* last_time = now
+
+---
+
+### i = 0
+
+* elapsed ≈ 0 (first call happens immediately)
+* refill: tokens = min(5, 5.0 + 0) = 5.0
+* tokens ≥ 1 → spend 1 → tokens = 4.0
+  Output: `Request 0: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 1
+
+* elapsed ≈ 0.2s → refill +0.4
+* tokens = min(5, 4.0 + 0.4) = 4.4
+* spend 1 → tokens = 3.4
+  Output: `Request 1: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 2
+
+* refill +0.4 → tokens = 3.8
+* spend 1 → tokens = 2.8
+  Output: `Request 2: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 3
+
+* refill +0.4 → tokens = 3.2
+* spend 1 → tokens = 2.2
+  Output: `Request 3: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 4
+
+* refill +0.4 → tokens = 2.6
+* spend 1 → tokens = 1.6
+  Output: `Request 4: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 5
+
+* refill +0.4 → tokens = 2.0
+* spend 1 → tokens = 1.0
+  Output: `Request 5: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 6
+
+* refill +0.4 → tokens = 1.4
+* spend 1 → tokens = 0.4
+  Output: `Request 6: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 7
+
+* refill +0.4 → tokens = 0.8
+* tokens < 1 → **reject**, tokens stays 0.8
+  Output: `Request 7: Rejected`
+
+Sleep 200ms
+
+---
+
+### i = 8
+
+* refill +0.4 → tokens = 1.2
+* spend 1 → tokens = 0.2
+  Output: `Request 8: Allowed`
+
+Sleep 200ms
+
+---
+
+### i = 9
+
+* refill +0.4 → tokens = 0.6
+* tokens < 1 → reject, tokens stays 0.6
+  Output: `Request 9: Rejected`
+
+---
+
+## So the output will *roughly* be:
+
+```text
+Request 0: Allowed
+Request 1: Allowed
+Request 2: Allowed
+Request 3: Allowed
+Request 4: Allowed
+Request 5: Allowed
+Request 6: Allowed
+Request 7: Rejected
+Request 8: Allowed
+Request 9: Rejected
+```
+
+That’s the expected pattern because:
+
+* You start with **5 free tokens**
+* You’re making requests at **5 per second** (every 200ms)
+* But the limiter only refills at **2 per second**
+* So you burn tokens faster than you earn them, and eventually you get rejections sprinkled in.
+
+---
+
+## Tiny realism warning (why it might differ by 1 line)
+
+In real life, sleep isn’t perfectly 200ms. It might be 205ms, 190ms, etc. That changes refill slightly (0.41 tokens instead of 0.4), so the borderline cases (like hitting exactly 1.0) can shift.
+
+But the general behavior stays the same:
+
+* mostly allowed at the start,
+* then intermittent rejections once the bucket drains.
+
+Humans call this “rate limiting.” Servers call this “survival.”
+
 
 **Testing:** You know the core primitive (traffic staple).
 
