@@ -9,6 +9,7 @@ const TABS = [
   { id: 'amagi-experience', label: 'Amagi Experience' },
   { id: 'insights-qa', label: 'Insights/Q&As' },
   { id: 'gpu-image-processing', label: 'GPU Image Processing' },
+  { id: 'round2Prep', label: 'Round 2 Prep' },
 ];
 
 export function LeftNav({ view, setView, collapsed, onToggleCollapse }) {
