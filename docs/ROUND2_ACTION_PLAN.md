@@ -45,8 +45,6 @@ Apple-scale traffic means millions of requests per second. You must think about 
 
 ## Final Countdown Checklist (The Night Before)
 
-* **Complexity Check:** For every algorithm you code, know the Time and Space complexity.
-* **No-AI Audit:** Since you can't use Cursor, practice "mental linting." Look for off-by-one errors and memory leaks (if using raw pointers) manually.
-* **Soft Skills:** Be ready to talk about your Master's projects at ASU. When they ask about your UDP project, highlight **throughput metrics** and how you handled **packet loss**.
-
-### Would you like me to provide a C++ template for a thread-safe Weighted Round Robin algorithm to get you started?
+* **Complexity Check:** For every algorithm, know the Time and Space complexity.
+* **No-AI Audit:** Practice "mental linting." Look for off-by-one errors and memory leaks (if using raw pointers) manually.
+* **Soft Skills:** Be ready to talk about your Master's projects at ASU. When asked about your UDP project, highlight **throughput metrics** and how **packet loss** is handeld.
