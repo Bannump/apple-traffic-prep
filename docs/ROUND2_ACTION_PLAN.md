@@ -1,50 +1,82 @@
-# Round 2 Preparation — 12-Day Action Plan
+# Round 2 Preparation — 9-Day Action Plan
 
-Three phase preparation: 
-* **Core Primitives (Days 1-4)**
-* **Traffic Algorithms & Logic (Days 5-8)**
-* **High-Level Traffic Systems (Days 9-12)**
----
-## Phase 1: Low-Level Primitives & Thread Safety (Days 1–4)
+### **Day 1: Python Concurrency & Threading (5 Hours)**
 
-The Traffic team operates at the L4/L7 layers. They care about how a packet moves through memory and how threads coordinate without bottlenecking.
+The ASE Traffic team builds high-performance primitives. Prove I can handle concurrency manually.
 
-* **Socket API Mastery:** Practice writing a basic non-blocking TCP/UDP server in C++ from scratch. Focus on `epoll()` (Linux) or `kqueue()` (macOS) for handling thousands of concurrent connections.
-* **Concurrency Patterns:** Revisit your UDP project. Implement a **Lock-Free Circular Buffer** or a **Thread Pool** where workers use `std::condition_variable` to wait for tasks.
-* **The "Apple" Edge Case:** Be ready to discuss **Thundering Herd** problems (where many threads wake up for one task) and how to mitigate them using `EPOLLEXCLUSIVE`.
+* **Hours 1-2: Threading Fundamentals.** Practice implementing a **Thread-Safe Counter** and a **Bounded Blocking Queue** using `threading.Lock` and `threading.Condition`. This mirrors the logic in your C++ `server.cpp`.
+* **Hours 3-4: Producer-Consumer Implementation.** Write a script where one "listener" thread pushes tasks to a queue and four "worker" threads process them. Ensure graceful shutdown using `Event` objects.
+* **Hour 5: AsyncIO Basics.** Since you built async APIs at Amagi, practice writing a simple `asyncio` loop to handle concurrent network requests.
 
----
 
-## Phase 2: Traffic Algorithms & Coding (Days 5–8)
 
-You will likely be asked to implement a load-balancing or rate-limiting algorithm. Do not just explain it; be ready to code it on a whiteboard or shared editor.
+### **Day 2: Networking Algorithms & Binary Data (5 Hours)**
 
-### Key Algorithms to Implement:
+Traffic engineering often involves low-level data manipulation.
 
-1. **Weighted Round Robin (WRR):** How do you handle servers with different capacities?
-2. **Least Connections:** Keep track of active connections per backend using a min-priority queue or a hash map.
-3. **Token Bucket vs. Leaky Bucket:** These are the gold standards for **Rate Limiting**. Understand why Token Bucket allows "bursts" while Leaky Bucket smooths traffic.
+* **Hours 1-2: Rate Limiting Algorithms.** Implement a **Token Bucket** and a **Leaky Bucket** from scratch. Be prepared to explain the math behind token replenishment.
+* **Hours 3-4: Binary Protocol Parsing.** Use Python's `struct` module to parse a 12-byte header with a `magic_word` (0xDEADBEEF) and a `checksum`. Practice packing and unpacking binary data.
+* **Hour 5: Checksum Logic.** Implement a simple checksum function (like the sum of bytes) to verify data integrity, as seen in your UDP project.
 
-### Practice Problem:
+### **Day 3: Systems-Oriented Data Structures (5 Hours)**
 
-> "Implement a thread-safe `RateLimiter` class in C++ that allows N requests per second per UserID."
-> 
-> *Hint: Use a `std::unordered_map` with `std::mutex` per bucket to avoid global lock contention.*
+Standard DSA questions at Apple often have a systems "twist."
 
----
+* **Hours 1-3: LRU Cache.** Implement an **LRU Cache** using a dictionary and a doubly linked list. This is a classic traffic engineering question for caching routing tables or sessions.
+* **Hours 4-5: Heaps & Priority.** Use the `heapq` module to implement a **Priority-Based Packet Scheduler**. Practice situations where certain packets (high weight) are processed first.
 
-## Phase 3: High-Level Traffic Design (Days 9–12)
 
-Apple-scale traffic means millions of requests per second. You must think about **Global Server Load Balancing (GSLB)** and **Anycast IP**.
 
-* **Global Load Balancing:** How does a request from Tempe, AZ, find the nearest Apple data center? Discuss DNS-based routing vs. BGP Anycast.
-* **Sidecar Architecture:** Understand why a "Traffic" team uses Sidecars (like Envoy) for mTLS, observability, and retries without changing the application code.
-* **Health Checking:** Design a system that removes "unhealthy" backends. Discuss the difference between "Passive" (watching for 5xx errors) and "Active" (sending heartbeats) health checks.
+### **Day 4: Load Balancing & Routing (5 Hours)**
 
----
+These tasks connect directly to your experience at Amagi.
 
-## Final Countdown Checklist (The Night Before)
+* **Hours 1-2: Weighted Round Robin.** Implement an algorithm that picks a backend server based on assigned weights.
+* **Hours 3-4: Health Check Aggregator.** Write a system that tracks the status of 1,000 servers. If a server misses 3 heartbeats (a concept from your project), it is marked as "Down".
+* **Hour 5: Tries for Routing.** Practice using a **Trie (Prefix Tree)** for fast IP or URL prefix matching.
 
-* **Complexity Check:** For every algorithm, know the Time and Space complexity.
-* **No-AI Audit:** Practice "mental linting." Look for off-by-one errors and memory leaks (if using raw pointers) manually.
-* **Soft Skills:** Be ready to talk about your Master's projects at ASU. When asked about your UDP project, highlight **throughput metrics** and how **packet loss** is handeld.
+
+
+### **Day 5: LeetCode "Traffic" Patterns (5 Hours)**
+
+Standard algorithms relevant to stream processing.
+
+* **Hours 1-3: Sliding Windows.** Solve problems like "Longest Substring Without Repeating Characters" or "Maximum of all Subarrays of size k." These are useful for calculating moving averages of traffic metrics.
+* **Hours 4-5: Hash Map Optimization.** Practice problems involving frequency counting or finding duplicates in a stream of data (simulating packet sequence numbers).
+
+### **Day 6: Deep Dive into Your Resume (5 Hours)**
+
+The recruiter explicitly stated you must be "fully prepared to answer any questions mentioned in your resume".
+
+* **Hours 1-2: Amagi Forensics.** Be ready to explain exactly how you used **Terraform** and **ArgoCD** to reduce CDN failures by 95%.
+
+
+* **Hours 3-4: UDP Project Walkthrough.** Review every line of `server.cpp`. Be prepared to explain why you used **Shared Memory** for IPC and how it affected your system's performance.
+
+
+* **Hour 5: Metric Discussion.** Prepare to explain your **SLO definitions** and how **Grafana** dashboards reduced debugging time by 60%.
+
+
+
+### **Day 7: Performance & System Design Integration (5 Hours)**
+
+Even in a "coding" round, they will ask about "Why."
+
+* **Hours 1-2: Latency Calculations.** Practice calculating **P99 latency** and explaining the impact of "tail latency" on a distributed system.
+
+
+* **Hours 3-5: Scalability Scenarios.** Practice answering: "How would you scale the rate-limiter you just coded to handle 10,000 servers?" Mention **Redis** for shared state or **Lock Striping** to reduce contention.
+
+### **Day 8: Mock Interview - "No-AI" Simulation (5 Hours)**
+
+Simulate the CoderPad environment.
+
+* **Hours 1-3: Real-Time Coding.** Pick a problem (e.g., "Implement a Thread-Safe Rate Limiter") and solve it in a plain text editor with **zero AI, zero Google, and zero Autocomplete**.
+* **Hours 4-5: Self-Audit.** Review your code for edge cases: What happens if the buffer is full? What if the timestamp wraps around?.
+
+### **Day 9: Final Polish & Strategy (5 Hours)**
+
+* **Hours 1-2: Behavioral Prep.** Practice the "Technical Disagreement" story. Focus on using **P99 data** to settle the choice of asynchronous APIs.
+
+
+* **Hours 3-4: C++ to Python Mental Map.** Ensure you can quickly translate C++ concepts (like `mutex`) to Python syntax (`threading.Lock`) without hesitation.
