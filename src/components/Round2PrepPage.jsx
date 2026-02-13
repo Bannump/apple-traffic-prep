@@ -3,11 +3,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import actionPlanContent from '../../docs/ROUND2_ACTION_PLAN.md?raw';
-import phase1Content from '../../docs/ROUND2_PHASE1.md?raw';
 
 const SUB_TABS = [
   { id: 'action-plan', label: 'Action Plan' },
-  { id: 'phase1', label: 'Phase 1' },
 ];
 
 export function Round2PrepPage() {
@@ -20,14 +18,6 @@ export function Round2PrepPage() {
           <article className="study-content markdown-body">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
               {actionPlanContent || ''}
-            </ReactMarkdown>
-          </article>
-        );
-      case 'phase1':
-        return (
-          <article className="study-content markdown-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
-              {phase1Content || ''}
             </ReactMarkdown>
           </article>
         );
