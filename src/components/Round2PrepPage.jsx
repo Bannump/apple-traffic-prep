@@ -3,9 +3,11 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import actionPlanContent from '../../docs/ROUND2_ACTION_PLAN.md?raw';
+import rateLimiterContent from '../../docs/RATE_LIMITER.md?raw';
 
 const SUB_TABS = [
   { id: 'action-plan', label: 'Action Plan' },
+  { id: 'rate-limiter', label: 'Rate Limiter' },
 ];
 
 export function Round2PrepPage() {
@@ -18,6 +20,14 @@ export function Round2PrepPage() {
           <article className="study-content markdown-body">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
               {actionPlanContent || ''}
+            </ReactMarkdown>
+          </article>
+        );
+      case 'rate-limiter':
+        return (
+          <article className="study-content markdown-body">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+              {rateLimiterContent || ''}
             </ReactMarkdown>
           </article>
         );
