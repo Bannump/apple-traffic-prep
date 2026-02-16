@@ -64,15 +64,15 @@ class TokenBucket:
         self.rate = float(rate_per_sec)
         self.capacity = float(capacity)
         self.tokens = float(capacity)          # start full => allow initial burst
-        self.last_ts = time.monotonic()
+        self.last = time.monotonic()
         self._lock = threading.Lock()
 
     def _refill(self, now: float) -> None:
-        elapsed = now - self.last_ts
+        elapsed = now - self.last
         if elapsed <= 0:
             return
         self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
-        self.last_ts = now
+        self.last = now
 
     def allow(self, cost: float = 1.0) -> bool:
         if cost <= 0:
