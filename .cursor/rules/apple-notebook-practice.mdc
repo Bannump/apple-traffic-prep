@@ -1,0 +1,16 @@
+---
+description: Where to add new content in apple.ipynb (Practice section)
+globs: apple.ipynb
+alwaysApply: false
+---
+
+# Apple notebook – Practice section
+
+When adding or editing content in `apple.ipynb`:
+
+- **Place new content under Practice**: Add new cells **after** the markdown cell that contains `### **Practice**` and **before** any later `## **Round …**` section (or at the end of the notebook if there is no such section).
+- **Heading levels under Practice**:
+  - New main topics (e.g. a new problem or concept): use `#### **Topic Name**`.
+  - Sub-topics under a main topic (e.g. “Token Bucket” under “Rate Limiter”): use `##### **Sub-topic**`.
+- Do not insert new top-level sections between the title (`# **Apple**`), `## **Round 2**`, and `### **Practice**`; keep that structure intact.
+- When the user says they are “adding content” or “adding code” to the notebook, assume they want it under the existing Practice section unless they specify otherwise (e.g. a new Round).

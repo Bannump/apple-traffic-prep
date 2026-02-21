@@ -4,10 +4,21 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import actionPlanContent from '../../docs/ROUND2_ACTION_PLAN.md?raw';
 import rateLimiterContent from '../../docs/RATE_LIMITER.md?raw';
+import appleNotebookRaw from '../../apple.ipynb?raw';
+import { NotebookViewer } from './NotebookViewer';
+
+const appleNotebook = (() => {
+  try {
+    return JSON.parse(appleNotebookRaw || '{}');
+  } catch {
+    return null;
+  }
+})();
 
 const SUB_TABS = [
   { id: 'action-plan', label: 'Action Plan' },
   { id: 'rate-limiter', label: 'Rate Limiter' },
+  { id: 'practice', label: 'Practice' },
 ];
 
 export function Round2PrepPage() {
@@ -31,6 +42,8 @@ export function Round2PrepPage() {
             </ReactMarkdown>
           </article>
         );
+      case 'practice':
+        return <NotebookViewer notebook={appleNotebook} />;
       default:
         return null;
     }
