@@ -268,9 +268,111 @@ class KGS:
 
 ---
 
+---
+
+## Part 4: Fixed Window & Sliding Window (60–75 mins)
+
+**Interviewer:** *"Token Bucket and Leaky Bucket are great for traffic shaping. But what if I just need a simple '100 requests per minute' limit for an API? No bursts, no variable costs—just a hard cap. What's the simplest approach?"*
+
+### **Fixed Window Counter**
+
+**Your Answer:** *"The simplest approach is a **Fixed Window Counter**. You divide time into discrete blocks—e.g., 60-second windows—and count requests per window. When the window rolls over, you reset the counter."*
+
+```python
+import time
+import threading
+
+class FixedWindowCounter:
+    def __init__(self, limit: int, window_size: int):
+        self.limit = limit
+        self.window_size = window_size  # in seconds
+        self.counter = 0
+        self.current_window = int(time.time() / window_size)
+        self._lock = threading.Lock()
+
+    def allow(self) -> bool:
+        with self._lock:
+            now_window = int(time.time() / self.window_size)
+
+            if now_window > self.current_window:
+                self.current_window = now_window
+                self.counter = 0
+
+            if self.counter < self.limit:
+                self.counter += 1
+                return True
+            return False
+```
+
+**Interviewer:** *"That's straightforward. But what's the flaw? Can a malicious user exploit this?"*
+
+**Your Answer:** *"Yes—the **boundary problem**. If the limit is 100/min, a user can send 100 requests at 11:59:59 and another 100 at 12:00:01. In two seconds, they've sent 200 requests, potentially crashing the server. The fixed window resets abruptly at the boundary, so the edges become weak spots."*
+
+---
+
+### **Sliding Window Counter**
+
+**Interviewer:** *"So how do you fix the boundary issue without storing every request timestamp? We can't afford $O(N)$ memory."*
+
+**Your Answer:** *"I'd use a **Sliding Window Counter** with a weighted average. Instead of a hard reset, we blend the previous window's count with the current window based on how far we've progressed. It gives the accuracy of a log-based system with $O(1)$ memory."*
+
+*"The formula: if we're 25% into the current minute, we use 75% of the previous window's count plus the current count."*
+
+Weighted Count = (Previous Count * (1 - elapsed_percentage)) + Current Count
+
+```python
+class SlidingWindowCounter:
+    def __init__(self, limit: int, window_size: int = 60):
+        self.limit = limit
+        self.window_size = window_size
+        self.prev_count = 0
+        self.curr_count = 0
+        self.current_window = int(time.time() / window_size)
+        self._lock = threading.Lock()
+
+    def allow(self) -> bool:
+        with self._lock:
+            now = time.time()
+            now_window = int(now / self.window_size)
+
+            if now_window > self.current_window:
+                if now_window == self.current_window + 1:
+                    self.prev_count = self.curr_count
+                else:
+                    self.prev_count = 0
+                self.curr_count = 0
+                self.current_window = now_window
+
+            elapsed_percentage = (now % self.window_size) / self.window_size
+            weighted_count = self.prev_count * (1 - elapsed_percentage) + self.curr_count
+
+            if weighted_count < self.limit:
+                self.curr_count += 1
+                return True
+            return False
+```
+
+**Interviewer:** *"When would you choose Fixed Window over Sliding Window in production?"*
+
+**Your Answer:** *"Fixed Window is easier to implement in Redis—a single `INCR` and `EXPIRE` per key. For non-critical limits where a bit of boundary abuse is acceptable, it's fine. Sliding Window needs slightly more complex Lua scripts in Redis, but for high-accuracy limits—like billing or strict SLA enforcement—it's worth the extra complexity."*
+
+---
+
+### **Comparison: Fixed vs Sliding Window**
+
+| Feature | Fixed Window | Sliding Window Counter |
+| --- | --- | --- |
+| **Memory** | $O(1)$ (Very Low) | $O(1)$ (Low) |
+| **Accuracy** | Low (Boundary issues) | High (Smooths out edges) |
+| **Complexity** | Simple | Moderate |
+| **Scalability** | Easy in Redis | Requires slightly more complex Lua logic |
+
+---
+
 ### **Simulation Recap: How you scored**
 
 * **Monotonic Clocks:** Correctly identified reliability over wall-clock time.
 * **Complexity:** Maintained $O(1)$ for both algorithms.
 * **Concurrency:** Addressed lock contention with sharding.
 * **System Design:** Solved distributed bottlenecks using range-based allocation.
+* **Fixed vs Sliding:** Explained the boundary flaw and the weighted-average fix.
