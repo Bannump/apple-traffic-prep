@@ -241,25 +241,63 @@ In an interview, the interviewer will ask: *"What if two App Servers ask for a k
 * Once an instance runs out of keys in its memory, it goes back to the DB to fetch a new unique segment.
 
 ```python
+import sqlite3 # Using SQLite to simulate a transactional SQL database
+
 class KGS:
-    def __init__(self, segment_size=1000):
-        self.unused_keys = [] # In-memory cache
+    def __init__(self, server_id, segment_size=1000):
+        self.server_id = server_id
+        self.unused_keys = []
         self.segment_size = segment_size
         self._lock = threading.Lock()
-
-    def get_key(self):
-        with self._lock:
-            if not self.unused_keys:
-                self._fetch_new_segment_from_db()
-            
-            return self.unused_keys.pop()
+        # In production, this would be a connection string to Postgres/MySQL/DynamoDB
+        self.db_conn = sqlite3.connect('keys_metadata.db', check_same_thread=False)
 
     def _fetch_new_segment_from_db(self):
-        # Transactional update: 
-        # 1. Find the next available range in DB
-        # 2. Mark that range as "Assigned to Server X"
-        # 3. Load those keys into self.unused_keys
-        pass
+        """
+          Transactional update:
+            1. Find the next available range in DB
+            2. Mark that range as "Assigned to Server X"
+            3. Load those keys into self.unused_keys
+        """
+        cursor = self.db_conn.cursor()
+        try:
+            # 1. Start Transaction
+            cursor.execute("BEGIN TRANSACTION;")
+
+            # 2. Find the next available range (using an offset or a status flag)
+            # We select keys that are NOT yet assigned
+            cursor.execute("""
+                SELECT key_value FROM key_store
+                WHERE status = 'AVAILABLE'
+                LIMIT ?;
+            """, (self.segment_size,))
+
+            rows = cursor.fetchall()
+
+            if not rows:
+                raise Exception("Out of unique keys in the database!")
+
+            # 3. Extract keys and update their status to 'ASSIGNED'
+            new_keys = [row[0] for row in rows]
+
+            # Using placeholders to prevent SQL injection and update the specific keys
+            cursor.executemany("""
+                UPDATE key_store
+                SET status = 'ASSIGNED', assigned_to = ?
+                WHERE key_value = ?;
+            """, [(self.server_id, k) for k in new_keys])
+
+            # 4. Commit Transaction
+            self.db_conn.commit()
+
+            # 5. Load into memory
+            self.unused_keys = new_keys
+            print(f"Server {self.server_id} successfully fetched {len(new_keys)} keys.")
+
+        except Exception as e:
+            self.db_conn.rollback()
+            print(f"Error fetching segment: {e}")
+            raise
 
 ```
 
