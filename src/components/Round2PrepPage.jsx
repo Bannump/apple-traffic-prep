@@ -19,7 +19,7 @@ const appleNotebook = (() => {
 const SUB_TABS = [
   { id: 'action-plan', label: 'Action Plan' },
   { id: 'rate-limiter', label: 'Rate Limiter' },
-  { id: 'mock-interview', label: 'Mock Interview' },
+  { id: 'mock-interview', label: 'Expected Interview Process' },
   { id: 'practice', label: 'Practice' },
 ];
 
