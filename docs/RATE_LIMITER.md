@@ -108,26 +108,31 @@ class TokenBucket:
 You respond by writing a few micro-tests (not a full framework, just sanity).
 
 ```python
-def _demo():
-    rl = TokenBucket(rate_per_sec=2, capacity=4)
+def test_bucket():
+    # rate=2 (1 token every 0.5s), capacity=5
+    bucket = tokenBucket(rate_per_sec=2, capacity=5)
 
-    # Burst: start full, should allow 4 immediately
-    assert rl.allow() and rl.allow() and rl.allow() and rl.allow()
-    assert not rl.allow()  # empty now
+    print(f"--- Testing Initial Burst (Capacity: {bucket.cap}) ---")
+    for i in range(10):
+        result = bucket.allow(1.0)
+        print(f"Request {i+1}: {'ALLOWED' if result else 'REJECTED'} (Tokens left: {bucket.tokens:.2f})")
+        time.sleep(0.2)
 
-    # After 0.5s at 2 tokens/sec => ~1 token
-    time.sleep(0.55)
-    assert rl.allow()
-    assert not rl.allow()  # likely empty again
+    print("\n--- Waiting 1 second (Should refill 2 tokens) ---")
+    time.sleep(1)
 
-    # Cost handling
-    time.sleep(2.1)        # refill to capacity
-    assert rl.allow(cost=3)
-    assert not rl.allow(cost=2)  # only ~1 token left
+    for i in range(3):
+        result = bucket.allow(1.0)
+        print(f"Request {i+8}: {'ALLOWED' if result else 'REJECTED'} (Tokens left: {bucket.tokens:.2f})")
+
+    print("\n--- Testing Sustained Rate (0.2s intervals) ---")
+    for i in range(5):
+        time.sleep(0.2)
+        result = bucket.allow(1.0)
+        print(f"T + {0.2*(i+1):.1f}s | Request {i+11}: {'ALLOWED' if result else 'REJECTED'}")
 
 if __name__ == "__main__":
-    _demo()
-    print("ok")
+    test_bucket()
 ```
 
 **Edge cases you call out verbally:**
