@@ -414,3 +414,104 @@ class SlidingWindowCounter:
 * **Concurrency:** Addressed lock contention with sharding.
 * **System Design:** Solved distributed bottlenecks using range-based allocation.
 * **Fixed vs Sliding:** Explained the boundary flaw and the weighted-average fix.
+
+
+To wrap up your **Traffic Engineering** toolkit, here is the complete implementation of a **gRPC Video Streaming Server**.
+
+In this scenario, we combine **Server-Side Streaming** (pushing video frames) with our **Token Bucket** (ensuring the user has the "bandwidth" or "credits" to receive the stream).
+
+### 1. The Contract (`video.proto`)
+
+This defines a stream of `VideoFrame` messages.
+
+```protobuf
+syntax = "proto3";
+
+service StreamService {
+  // Server pushes a stream of frames to the client
+  rpc StreamVideo (VideoStreamRequest) returns (stream VideoFrame);
+}
+
+message VideoStreamRequest {
+  string video_id = 1;
+  string quality = 2; // e.g., "4K", "1080p"
+}
+
+message VideoFrame {
+  bytes data = 1;
+  int64 frame_id = 2;
+}
+
+```
+
+---
+
+### 2. The Implementation (Python)
+
+This code uses a **Generator** to push data and integrates the **Admission Control** we built.
+
+```python
+import time
+import grpc
+import video_pb2
+import video_pb2_grpc
+
+class VideoStreamServicer(video_pb2_grpc.StreamServiceServicer):
+    def __init__(self, limiter):
+        self.limiter = limiter # Our TokenBucket instance
+
+    def StreamVideo(self, request, context):
+        # 1. Determine cost based on quality
+        # 4K costs more tokens per frame than 720p
+        cost_per_frame = 5.0 if request.quality == "4K" else 1.0
+        
+        print(f"Starting {request.quality} stream for {request.video_id}")
+
+        frame_count = 0
+        while context.is_active():
+            # 2. Admission Control Check
+            allowed, remaining = self.limiter.allow(cost=cost_per_frame)
+            
+            if not allowed:
+                # If bucket is empty, we stop the stream or send a signal
+                print("Rate limit exceeded. Pausing stream...")
+                context.abort(grpc.StatusCode.RESOURCE_EXHAUSTED, "Insufficient bandwidth")
+                break
+
+            # 3. Simulate fetching and sending a video frame
+            # In reality, you'd read from a buffer or disk here
+            dummy_data = b'\x00\xff' * 1024 # 2KB of dummy "video data"
+            
+            yield video_pb2.VideoFrame(
+                data=dummy_data,
+                frame_id=frame_count
+            )
+            
+            frame_count += 1
+            time.sleep(0.033) # Simulate 30 FPS (1/30 seconds)
+
+```
+
+---
+
+### 3. The Interview Simulation (The "Final Defense")
+
+**Interviewer:** *"Your code uses a sleep of 33ms to simulate 30 FPS. What happens if the network is slow and the client can't keep up?"*
+
+**Your Pitch:**
+"That's the beauty of using **gRPC over HTTP/2**. It has built-in **Flow Control**. If the client's receive buffer is full, the underlying TCP/HTTP2 layer will signal my server to back off. My `yield` statement will effectively 'block' or slow down, preventing the server from wasting memory by buffering frames that can't be delivered yet."
+
+**Interviewer:** *"How do you handle a user who tries to open 100 streams at once?"*
+
+**You:** "Since all 100 threads for that user share the same `TokenBucket` instance (sharded by UserID), they would exhaust their tokens 100x faster. The 101st request would fail the `allow()` check immediately, and I would return `RESOURCE_EXHAUSTED`. This protects my server's egress bandwidth."
+
+---
+
+### Your Technical Summary for ASU & Job Apps:
+
+* **Protocol:** gRPC (HTTP/2) for low-latency binary streaming.
+* **Mechanism:** Server-side streaming using Python Generators (`yield`).
+* **Protection:** Integrated Token Bucket Admission Control with Variable Costing.
+* **Concurrency:** Thread-safe execution using Mutex Locks to prevent over-allocation.
+
+### Would you like me to help you draft a LinkedIn "Project Spotlight" or a Resume bullet point based on this system? It's a perfect highlight for a Master's student in Computer Science.
