@@ -5,6 +5,7 @@ import rehypeHighlight from 'rehype-highlight';
 import actionPlanContent from '../../docs/ROUND2_ACTION_PLAN.md?raw';
 import rateLimiterContent from '../../docs/RATE_LIMITER.md?raw';
 import mockInterviewContent from '../../docs/MOCK_INTERVIEW.md?raw';
+import rpcGrpcContent from '../../docs/RPC_GRPC.md?raw';
 import appleNotebookRaw from '../../apple.ipynb?raw';
 import { NotebookViewer } from './NotebookViewer';
 
@@ -20,6 +21,7 @@ const SUB_TABS = [
   { id: 'action-plan', label: 'Action Plan' },
   { id: 'rate-limiter', label: 'Rate Limiter' },
   { id: 'mock-interview', label: 'Expected Interview Process' },
+  { id: 'rpc-grpc', label: 'RPC/gRPC' },
   { id: 'practice', label: 'Practice' },
 ];
 
@@ -49,6 +51,14 @@ export function Round2PrepPage() {
           <article className="study-content markdown-body">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
               {mockInterviewContent || ''}
+            </ReactMarkdown>
+          </article>
+        );
+      case 'rpc-grpc':
+        return (
+          <article className="study-content markdown-body">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
+              {rpcGrpcContent || ''}
             </ReactMarkdown>
           </article>
         );
