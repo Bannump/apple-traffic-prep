@@ -51,6 +51,20 @@ message VideoResponse {
 
 ```
 
+#### **What this means in human terms**
+
+* You’re defining a service named VideoService.
+* It has one RPC method: GetMetadata.
+* Client sends: VideoRequest { video_id: "123" }
+* Server returns: VideoResponse { title: "...", duration_sec: ... }
+
+#### **What gRPC generates from this (conceptually)**
+
+* It generates:
+  * Client stub: a class with a method GetMetadata(...) you can call like a normal function.
+  * Server base class: something like VideoServiceServicer where you implement GetMetadata.
+  * So instead of manually doing sockets + packing bytes + parsing bytes, you just implement a function.
+
 ### Step 2: The Implementation (Python)
 
 gRPC handles the network; you just write the logic.
