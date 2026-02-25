@@ -323,17 +323,18 @@ import threading
 class FixedWindowCounter:
     def __init__(self, limit: int, window_size: int):
         self.limit = limit
-        self.window_size = window_size  # in seconds
+        self.window_size = window_size # in seconds
         self.counter = 0
-        self.current_window = int(time.time() / window_size)
+        self.last_window = int(time.time() / window_size)
         self._lock = threading.Lock()
 
     def allow(self) -> bool:
         with self._lock:
-            now_window = int(time.time() / self.window_size)
+            current_window = int(time.time() / self.window_size)
 
-            if now_window > self.current_window:
-                self.current_window = now_window
+            # If the window has changed, reset the counter
+            if current_window > self.last_window:
+                self.last_window = current_window
                 self.counter = 0
 
             if self.counter < self.limit:
@@ -359,35 +360,49 @@ class FixedWindowCounter:
 Weighted Count = (Previous Count * (1 - elapsed_percentage)) + Current Count
 
 ```python
+import time
+import threading
+
 class SlidingWindowCounter:
-    def __init__(self, limit: int, window_size: int = 60):
-        self.limit = limit
-        self.window_size = window_size
-        self.prev_count = 0
-        self.curr_count = 0
-        self.current_window = int(time.time() / window_size)
-        self._lock = threading.Lock()
+  """
+  Sliding Window Counter:
+    - limit: max requests to be processed
+    - window_size: time in seconds
+    - prev_count: requests processed in the previous window
+    - curr_count: requests processed in the current window
+  """
+  def __init__(self, limit: int, window_size: int = 60):
+    self.limit = limit
+    self.window_size = window_size
+    self.prev_count = 0
+    self.curr_count = 0
+    self.last_window = int(time.time() / window_size)
+    self._lock = threading.Lock()
 
-    def allow(self) -> bool:
-        with self._lock:
-            now = time.time()
-            now_window = int(now / self.window_size)
+  def allow(self) -> bool:
+    with self._lock:
+      now = time.time()
+      current_window = int(now / self.window_size)
 
-            if now_window > self.current_window:
-                if now_window == self.current_window + 1:
-                    self.prev_count = self.curr_count
-                else:
-                    self.prev_count = 0
-                self.curr_count = 0
-                self.current_window = now_window
+      # If we've moved to a new window, shift the counts
+      if current_window > self.last_window:
+        # If it's a brand new window, the old 'current' becomes 'previous'
+        if current_window == self.last_window + 1:
+          self.prev_count = self.curr_count
+        else:
+          self.prev_count = 0
+          self.curr_count = 0
+          self.last_window = current_window
 
-            elapsed_percentage = (now % self.window_size) / self.window_size
-            weighted_count = self.prev_count * (1 - elapsed_percentage) + self.curr_count
+        # Calculate the weighted average
+        # (time_elapsed_in_last_window / window_size)
+        elapsed_percentage = (now % self.window_size) / self.window_size
+        weighted_count = self.prev_count * (1 - elapsed_percentage) + self.curr_count
 
-            if weighted_count < self.limit:
-                self.curr_count += 1
-                return True
-            return False
+        if weighted_count < self.limit:
+          self.curr_count += 1
+          return True
+        return False
 ```
 
 **Interviewer:** *"When would you choose Fixed Window over Sliding Window in production?"*
