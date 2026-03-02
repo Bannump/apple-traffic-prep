@@ -197,11 +197,11 @@ In your `server.cpp` file, the code implements a secure, multi-threaded UDP pack
 * **`calculate_checksum(const uint8_t* data, size_t len)`**: This function calculates a simple 32-bit sum of all bytes in a provided data buffer. It is a fundamental tool for verifying that data has not been corrupted during network transit.
 * **`decrypt_payload(uint8_t* payload, size_t len)`**: To provide a layer of security, this function performs a bitwise XOR operation on every byte of the payload using a pre-defined `ENCRYPTION_KEY` (0xAA).
 * **`process_packet(uint8_t* buffer, size_t bytes_received, int thread_id)`**: This is the core logic of the worker threads. It performs several validation steps:
-* **Size Checks**: Ensures the packet is neither too large nor smaller than the required header.
-* **Magic Word Validation**: Checks for the sync marker `0xDEADBEEF` to ensure the packet is intended for this protocol.
-* **Checksum Verification**: Compares the received checksum against a newly calculated one to ensure data integrity.
-* **Decryption**: Calls `decrypt_payload` to recover the original data.
-* **Stats Updates**: Updates the `SystemStats` in shared memory, including per-thread load tracking.
+  * **Size Checks**: Ensures the packet is neither too large nor smaller than the required header.
+  * **Magic Word Validation**: Checks for the sync marker `0xDEADBEEF` to ensure the packet is intended for this protocol.
+  * **Checksum Verification**: Compares the received checksum against a newly calculated one to ensure data integrity.
+  * **Decryption**: Calls `decrypt_payload` to recover the original data.
+  * **Stats Updates**: Updates the `SystemStats` in shared memory, including per-thread load tracking.
 
 
 * **`worker_thread(int thread_id)`**: This function runs in a loop on each of the four worker threads. It repeatedly calls `pop_packet` to retrieve work and `process_packet` to handle the data.
