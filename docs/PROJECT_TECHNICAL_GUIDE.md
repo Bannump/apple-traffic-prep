@@ -187,6 +187,42 @@ On any failure (2–6): increment `dropped_packets`, return, do **not** decrypt 
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
+In your `server.cpp` file, the code implements a secure, multi-threaded UDP packet processor that uses a producer-consumer model for efficiency. Below is a detailed explanation of each function and how they connect to manage high-velocity traffic.
+
+### Function-by-Function Explanation
+
+* **`log_timestamp()`**: This utility function generates a high-precision UTC timestamp in ISO8601 format (e.g., `2026-03-02T01:04:00.000Z`). It is used throughout the server to provide accurate timing for log messages, which is critical for debugging and log filtering.
+* **`push_packet(uint8_t* data, size_t len)`**: This is the "Producer" interface for the shared queue. It uses a `std::lock_guard` to safely copy incoming packet data into the `g_packet_queue` and then calls `g_queue_cv.notify_one()` to wake up a waiting worker thread.
+* **`pop_packet(uint8_t*& data, size_t& len)`**: This is the "Consumer" interface. It uses a `std::condition_variable` to put worker threads to sleep if the queue is empty, ensuring they do not waste CPU cycles busy-waiting. When a packet arrives or the server shuts down, it wakes a thread, removes the packet from the queue, and returns the data.
+* **`calculate_checksum(const uint8_t* data, size_t len)`**: This function calculates a simple 32-bit sum of all bytes in a provided data buffer. It is a fundamental tool for verifying that data has not been corrupted during network transit.
+* **`decrypt_payload(uint8_t* payload, size_t len)`**: To provide a layer of security, this function performs a bitwise XOR operation on every byte of the payload using a pre-defined `ENCRYPTION_KEY` (0xAA).
+* **`process_packet(uint8_t* buffer, size_t bytes_received, int thread_id)`**: This is the core logic of the worker threads. It performs several validation steps:
+* **Size Checks**: Ensures the packet is neither too large nor smaller than the required header.
+* **Magic Word Validation**: Checks for the sync marker `0xDEADBEEF` to ensure the packet is intended for this protocol.
+* **Checksum Verification**: Compares the received checksum against a newly calculated one to ensure data integrity.
+* **Decryption**: Calls `decrypt_payload` to recover the original data.
+* **Stats Updates**: Updates the `SystemStats` in shared memory, including per-thread load tracking.
+
+
+* **`worker_thread(int thread_id)`**: This function runs in a loop on each of the four worker threads. It repeatedly calls `pop_packet` to retrieve work and `process_packet` to handle the data.
+* **`listener_thread(int sockfd)`**: This is the dedicated producer thread. It continuously calls `recvfrom` on the UDP socket to listen for incoming packets. When data is received, it immediately calls `push_packet` to move it to the processing queue.
+* **`setup_shared_memory()`**: This initializes a shared memory segment (`/telecom_shm`) using `shm_open` and `mmap`. This segment allows external monitoring tools to view server statistics (like packet counts and thread loads) in real-time.
+* **`cleanup_shared_memory()`**: Ensures that shared memory is properly unmapped and unlinked from the system when the server shuts down to prevent resource leaks.
+* **`signal_handler(int sig)`**: This function catches system signals like `SIGINT` (Ctrl+C) and sets `g_running` to `false`, triggering an orderly shutdown of all threads.
+* **`setup_udp_socket()`**: Creates the UDP socket, sets it to non-blocking mode using `fcntl` so the listener thread doesn't hang indefinitely, and binds it to port 8080.
+
+---
+
+### Connections and Call Flow
+
+The server operates using a **Decoupled Producer-Consumer Architecture**:
+
+1. **Startup**: The `main` function initializes shared memory, sets up the UDP socket, and spawns the `listener_thread` and four `worker_thread` instances.
+2. **Reception**: The **Listener Thread** receives raw bytes from the network and calls **`push_packet`**.
+3. **Handoff**: **`push_packet`** places the data in a thread-safe queue and signals the worker threads via a condition variable.
+4. **Processing**: A sleeping **Worker Thread** wakes up, calls **`pop_packet`** to get the data, and then passes that data to **`process_packet`**.
+5. **Validation & Monitoring**: **`process_packet`** validates the header and checksum, decrypts the payload, and finally updates the **`SystemStats`** in shared memory. This allows a separate monitoring process to see the activity without interrupting the server's work.
+
 ### Synchronization Primitives
 
 | Primitive | Used By | Purpose |
